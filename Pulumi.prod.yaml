@@ -1,0 +1,7 @@
+config:
+  aws:region: us-east-2
+  web:cnames:
+  - throttlehead.dev
+  - www.throttlehead.dev
+  - admin.throttlehead.dev
+  web:sslCertArn: arn:aws:acm:us-east-1:191366183737:certificate/46fb907e-6970-441d-849c-354454bd4ea1
