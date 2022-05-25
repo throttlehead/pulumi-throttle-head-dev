@@ -25,7 +25,7 @@ if (stack !== 'prod') {
 
 const route53WebHostedZoneName = fullDomain;
 
-let sslCertArn = config.require("sslCertArn");
+let sslCertArn = config.requireSecret("sslCertArn");
 
 // Get the cnames
 // For context why interfaces are needed: https://www.leebriggs.co.uk/blog/2021/05/09/pulumi-apply
@@ -36,7 +36,7 @@ let cnames = config.requireObject<Cnames>("cnames");
 
 // Setup database credentials
 let rdsUser = 'root';
-let rdsPassword = config.require("rdsPassword");
+let rdsPassword = config.requireSecret("rdsPassword");
 
 console.log("Web domain: "+fullDomain);
 console.log("Web full domain: "+fullDomain);
@@ -181,7 +181,8 @@ const rdsInstance = new aws.rds.Instance("default", {
     engine: "mysql",
     engineVersion: "5.7",
     instanceClass: "db.t3.micro",
-    name: "ThrottleHead"+_.capitalize(stack),
+    identifier: "throttle-head-"+stack,
+    dbName:"throttle_head",
     parameterGroupName: "default.mysql5.7",
     skipFinalSnapshot: true,
     username: rdsUser,
@@ -193,4 +194,4 @@ export const s3DistributionId = s3Distribution.id;
 export const route53WebHostedZoneId = route53WebHostedZone.id;
 export const route53WebRecordName = route53WebRecord.name;
 export const route53WebWwwRecordName = route53WebWwwRecord.name;
-export const rdsInstanceId = rdsInstance.id;
+export const rdsInstanceId = rdsInstance.endpoint;
