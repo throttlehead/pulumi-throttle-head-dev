@@ -1,13 +1,14 @@
 import * as pulumi from "@pulumi/pulumi";
 import * as aws from "@pulumi/aws";
 import * as awsx from "@pulumi/awsx";
+import * as _ from "lodash";
 
 const project = pulumi.getProject();
 const stack = pulumi.getStack();
 
 let config = new pulumi.Config();
 
-// Setup
+// Setup domain vars
 
 const domain = "throttleheadweb.dev";
 
@@ -32,6 +33,10 @@ let sslCertArn = config.require("sslCertArn");
 interface Cnames extends Array<string> { }
 
 let cnames = config.requireObject<Cnames>("cnames");
+
+// Setup database credentials
+let rdsUser = 'root';
+let rdsPassword = config.require("rdsPassword");
 
 console.log("Web domain: "+fullDomain);
 console.log("Web full domain: "+fullDomain);
@@ -126,14 +131,14 @@ const s3Distribution = new aws.cloudfront.Distribution("throttle-head-web-acl-"+
     ]
 });
 
-// Create hosted zone
+// Create route53 hosted zone
 
 const route53WebHostedZone = new aws.route53.Zone(route53WebHostedZoneName, {
     comment: "Hosted zone for throttleheadweb.dev",
     name: route53WebHostedZoneName
 });
 
-// Create record
+// Create route53 records
 
 const route53WebRecord = new aws.route53.Record("base", {
     zoneId: route53WebHostedZone.zoneId,
@@ -157,6 +162,8 @@ const route53WebWwwRecord = new aws.route53.Record("www", {
     }]
 });
 
+// Create route53 parent zone record if its set
+
 if (primaryZoneId !== null) {
     const route53PrimaryZoneRecord = new aws.route53.Record(route53WebHostedZoneName, {
         zoneId: primaryZoneId,
@@ -167,8 +174,23 @@ if (primaryZoneId !== null) {
     });
 }
 
+// Create rds instance
+
+const rdsInstance = new aws.rds.Instance("default", {
+    allocatedStorage: 10,
+    engine: "mysql",
+    engineVersion: "5.7",
+    instanceClass: "db.t3.micro",
+    name: "ThrottleHead"+_.capitalize(stack),
+    parameterGroupName: "default.mysql5.7",
+    skipFinalSnapshot: true,
+    username: rdsUser,
+    password: rdsPassword,
+});
+
 export const s3BucketWebId = s3BucketWeb.id;
-export const route53WebHostedZoneId = route53WebHostedZone.id;
 export const s3DistributionId = s3Distribution.id;
+export const route53WebHostedZoneId = route53WebHostedZone.id;
 export const route53WebRecordName = route53WebRecord.name;
 export const route53WebWwwRecordName = route53WebWwwRecord.name;
+export const rdsInstanceId = rdsInstance.id;
