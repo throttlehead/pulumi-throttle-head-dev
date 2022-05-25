@@ -4,4 +4,6 @@ config:
   - throttlehead.dev
   - www.throttlehead.dev
   - admin.throttlehead.dev
+  web:rdsPassword:
+    secure: AAABAPtmwGaUFn4sWp/yobSVMUPjB+Gco0SPrp3dwNv1E+l8jG1LdhZGkBVTTwI6
   web:sslCertArn: arn:aws:acm:us-east-1:191366183737:certificate/46fb907e-6970-441d-849c-354454bd4ea1

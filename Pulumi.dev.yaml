@@ -6,4 +6,6 @@ config:
   - admin.dev.throttlehead.dev
   web:primaryZoneId:
     secure: AAABAH5AEthiO/h22QIPdD9IsddZG3St3e00SjGa6qPerDNfBs13FdvVVesoek2/55Aze4M=
+  web:rdsPassword:
+    secure: AAABAFvVab4G76HJPRZm+wtuTUCSBxtkMIoZZpqHVhEfwGC8l1OV03sVrlnvW9V3
   web:sslCertArn: arn:aws:acm:us-east-1:191366183737:certificate/86635ec3-a2c9-4e32-b5a6-bbcdf5748118
